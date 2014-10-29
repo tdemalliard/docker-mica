@@ -1,5 +1,5 @@
 #
-# Opal Dockerfile
+# Mica Dockerfile
 #
 # https://github.com/obiba/docker-mica
 #
@@ -17,14 +17,12 @@ RUN \
   echo mica-server mica-server/admin_password_again select password | sudo debconf-set-selections && \
   apt-get update && apt-get install -y mica-server mica-python-client
 
-# Define mountable directories.
-VOLUME ["/data/mica"]
+COPY bin /opt/mica/bin
 
-# Define working directory.
-WORKDIR /data
+RUN chmod +x -R /opt/mica/bin
 
 # Define default command.
-CMD ["service", "mica-server", "start"]
+ENTRYPOINT ["bash", "-c", "/opt/mica/bin/start.sh"]
 
 # https
 EXPOSE 8445

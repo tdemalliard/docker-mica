@@ -18,12 +18,8 @@ build:
 	sudo docker build -t="obiba/mica:snapshot" .
 
 # Run a Mica Docker instance
-run-default:
-	sudo docker run -d -p 8845:8445 --name mica --link mongodb:mongodb --link opal:opal obiba/mica:snapshot
-
-# Run a Mica Docker instance with database setup
 run:
-	sudo docker run -d -p 8845:8445 --name mica --link mongodb:mongodb --link opal:opal -v `pwd`/data:/data obiba/mica:snapshot bash start.sh
+	sudo docker run -d -p 8845:8445 --name mica --link mongodb:mongodb --link opal:opal obiba/mica:snapshot
 
 # Run a Mica Docker instance with shell
 run-sh:
