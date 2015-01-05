@@ -15,7 +15,7 @@ RUN \
   echo 'deb http://pkg.obiba.org unstable/' | sudo tee /etc/apt/sources.list.d/obiba.list && \
   echo mica-server mica-server/admin_password select password | sudo debconf-set-selections && \
   echo mica-server mica-server/admin_password_again select password | sudo debconf-set-selections && \
-  apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y mica-server mica-python-client
+  apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y mica2 mica-python-client
 
 COPY bin /opt/mica/bin
 
