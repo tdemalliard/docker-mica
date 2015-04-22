@@ -15,8 +15,10 @@ ENV LC_ALL C.UTF-8
 
 # Install Mica
 RUN \
-  wget -q -O - http://pkg.obiba.org/obiba.org.key | apt-key add - && \
-  echo 'deb http://pkg.obiba.org unstable/' | tee /etc/apt/sources.list.d/obiba.list && \
+  apt-get update && \
+  DEBIAN_FRONTEND=noninteractive apt-get install -y apt-transport-https && \
+  wget -q -O - https://pkg.obiba.org/obiba.org.key | apt-key add - && \
+  echo 'deb https://pkg.obiba.org unstable/' | tee /etc/apt/sources.list.d/obiba.list && \
   echo mica-server mica-server/admin_password select password | debconf-set-selections && \
   echo mica-server mica-server/admin_password_again select password | debconf-set-selections && \
   apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y mica2 mica-python-client
