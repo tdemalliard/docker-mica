@@ -17,11 +17,11 @@ build:
 
 # Run a Mica Docker instance
 run:
-	sudo docker run -d -p 8845:8445 -p 8882:8082 --name mica --link mongodb:mongodb --link opal:opal obiba/mica:snapshot
+	sudo docker run -d -p 8845:8445 -p 8882:8082 --name mica --link mongodb:mongo --link opal:opal obiba/mica:snapshot
 
 # Run a Mica Docker instance with shell
 run-sh:
-	sudo docker run -ti -p 8845:8445 -p 8882:8082 --name mica --link mongodb:mongodb --link opal:opal obiba/mica:snapshot bash
+	sudo docker run -ti -p 8845:8445 -p 8882:8082 --name mica --link mongodb:mongo --link opal:opal obiba/mica:snapshot bash
 
 # Show logs
 logs:
@@ -41,7 +41,7 @@ clean: stop
 
 # Run a Mongodb Docker instance
 run-mongodb:
-	sudo docker run -d --name mongodb dockerfile/mongodb
+	sudo docker run -d --name mongodb mongo
 
 # Stop a Mongodb Docker instance
 stop-mongodb:
