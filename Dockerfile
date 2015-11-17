@@ -28,7 +28,7 @@ COPY bin /opt/mica/bin
 RUN chmod +x -R /opt/mica/bin
 
 # Define default command.
-ENTRYPOINT ["bash", "-c", "/opt/mica/bin/start.sh"]
+ENTRYPOINT ["/opt/mica/bin/start.sh"]
 
 # http and https
 EXPOSE 8082 8445
