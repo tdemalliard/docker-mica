@@ -8,7 +8,7 @@ mica:
   - opal
   - agate
   environment:
-  - MICA_ADMINISTRATOR_PASSWORD=toto
+  - MICA_ADMINISTRATOR_PASSWORD=password
 opal:
   image: obiba/opal:snapshot
   ports:
