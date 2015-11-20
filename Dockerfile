@@ -27,6 +27,8 @@ COPY bin /opt/mica/bin
 
 RUN chmod +x -R /opt/mica/bin
 
+ENV MICA_ADMINISTRATOR_PASSWORD=password
+
 # Define default command.
 ENTRYPOINT ["/opt/mica/bin/start.sh"]
 
