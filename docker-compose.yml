@@ -9,6 +9,7 @@ mica:
   - agate
   environment:
   - MICA_ADMINISTRATOR_PASSWORD=password
+  - MICA_ANONYMOUS_PASSWORD=password
 opal:
   image: obiba/opal:snapshot
   ports:
