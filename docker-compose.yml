@@ -10,6 +10,8 @@ mica:
   environment:
   - MICA_ADMINISTRATOR_PASSWORD=password
   - MICA_ANONYMOUS_PASSWORD=password
+  volumes:
+  - /tmp/mica:/srv
 opal:
   image: obiba/opal:snapshot
   ports:
@@ -19,6 +21,8 @@ opal:
   - mongo
   environment:
   - OPAL_ADMINISTRATOR_PASSWORD=password
+  volumes:
+  - /tmp/opal:/srv
 agate:
   image: obiba/agate:snapshot
   ports:
@@ -28,5 +32,7 @@ agate:
   - mongo
   environment:
   - AGATE_ADMINISTRATOR_PASSWORD=password
+  volumes:
+  - /tmp/agate:/srv
 mongo:
   image: mongo

@@ -1,5 +1,12 @@
 #!/bin/bash
 
+# Make sure conf folder is available
+if [ ! -d $MICA_HOME/conf ]
+	then
+	mkdir -p $MICA_HOME/conf
+	cp -r /etc/mica2/* $MICA_HOME/conf
+fi
+
 # Check if 1st run. Then configure database.
 if [ -e /opt/mica/bin/first_run.sh ]
     then
@@ -8,22 +15,13 @@ if [ -e /opt/mica/bin/first_run.sh ]
 fi
 
 # Wait for MongoDB to be ready
-until curl -i http://$MONGO_PORT_27017_TCP_ADDR:$MONGO_PORT_27017_TCP_PORT/mica &> /dev/null
-do
-  sleep 1
-done
+if [ -n "$MONGO_PORT_27017_TCP_ADDR" ]
+	then
+	until curl -i http://$MONGO_PORT_27017_TCP_ADDR:$MONGO_PORT_27017_TCP_PORT/mica &> /dev/null
+	do
+  		sleep 1
+	done
+fi
 
-# Start service
-service mica2 start
-
-# Wait for service to be ready
-until ls /var/log/mica2/mica.log &> /dev/null
-do
-	sleep 1
-done
-
-# Tail the log
-tail -f /var/log/mica2/mica.log
-
-# Stop service
-service mica2 stop
+# Start mica
+/usr/share/mica2/bin/mica2
