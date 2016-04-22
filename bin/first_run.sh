@@ -2,7 +2,7 @@
 
 # Configure administrator password
 adminpw=$(echo -n $MICA_ADMINISTRATOR_PASSWORD | xargs java -jar /usr/share/mica2-*/tools/lib/obiba-password-hasher-*-cli.jar)
-cat $MICA_HOME/conf/shiro.ini | sed -e "s/^administrator\s*=.*,/administrator=$adminpw,/" > /tmp/shiro.ini && \
+cat $MICA_HOME/conf/shiro.ini | sed -e "s,^administrator\s*=.*\,,administrator=$adminpw\,," > /tmp/shiro.ini && \
     mv /tmp/shiro.ini $MICA_HOME/conf/shiro.ini
 
 # Configure anonymous password
