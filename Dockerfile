@@ -45,6 +45,7 @@ RUN chmod +x /usr/share/mica2/bin/mica2
 COPY bin /opt/mica/bin
 
 RUN chmod +x -R /opt/mica/bin
+RUN chown -R mica /opt/mica
 
 VOLUME /srv
 
