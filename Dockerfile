@@ -49,8 +49,8 @@ RUN chown -R mica /opt/mica
 
 VOLUME /srv
 
-# http and https
-EXPOSE 8082 8445
+# http
+EXPOSE 8082
 
 # Define default command.
 COPY ./docker-entrypoint.sh /
