@@ -1,6 +1,7 @@
 mica:
   image: obiba/mica:snapshot
   ports:
+  - "8845:8445"
   - "8882:8082"
   links:
   - mongo
@@ -14,6 +15,7 @@ mica:
 opal:
   image: obiba/opal:snapshot
   ports:
+  - "8843:8443"
   - "8880:8080"
   links:
   - mongo
@@ -24,6 +26,7 @@ opal:
 agate:
   image: obiba/agate:snapshot
   ports:
+  - "8844:8444"
   - "8881:8081"
   links:
   - mongo
