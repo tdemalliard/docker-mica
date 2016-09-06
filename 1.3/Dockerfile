@@ -30,21 +30,29 @@ ENV MICA_ANONYMOUS_PASSWORD=password
 ENV MICA_HOME=/srv
 ENV JAVA_OPTS=-Xmx2G
 
-# Install Mica
+ENV MICA_VERSION 1.3.1
+
+# Install Mica Python Client
 RUN \
   apt-get update && \
-  DEBIAN_FRONTEND=noninteractive apt-get install -y apt-transport-https && \
+  DEBIAN_FRONTEND=noninteractive apt-get install -y apt-transport-https unzip && \
   wget -q -O - https://pkg.obiba.org/obiba.org.key | apt-key add - && \
   echo 'deb https://pkg.obiba.org unstable/' | tee /etc/apt/sources.list.d/obiba.list && \
-  echo mica-server mica-server/admin_password select password | debconf-set-selections && \
-  echo mica-server mica-server/admin_password_again select password | debconf-set-selections && \
-  apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y mica2 mica-python-client
+  apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y mica-python-client
+
+# Install Mica Server
+RUN set -x && \
+  cd /usr/share/ && \
+  wget -q -O mica2.zip http://download.obiba.org/mica/stable/mica2-${MICA_VERSION}-dist.zip && \
+  unzip -q mica2.zip && \
+  mv mica-dist-${MICA_VERSION} mica2
 
 RUN chmod +x /usr/share/mica2/bin/mica2
 
-COPY bin /opt/mica/bin
+COPY ./bin /opt/mica/bin
 
 RUN chmod +x -R /opt/mica/bin
+RUN adduser --system --home $MICA_HOME --no-create-home --disabled-password mica
 RUN chown -R mica /opt/mica
 
 VOLUME /srv
