@@ -45,6 +45,7 @@ RUN set -x && \
   cd /usr/share/ && \
   wget -q -O mica2.zip http://download.obiba.org/mica/stable/mica2-${MICA_VERSION}-dist.zip && \
   unzip -q mica2.zip && \
+  rm mica2.zip && \
   mv mica-dist-${MICA_VERSION} mica2
 
 RUN chmod +x /usr/share/mica2/bin/mica2
