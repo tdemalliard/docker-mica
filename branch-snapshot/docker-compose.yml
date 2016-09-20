@@ -1,5 +1,5 @@
 mica:
-  image: obiba/mica:1.3-snapshot
+  image: obiba/mica:branch-snapshot
   ports:
   - "8845:8445"
   - "8882:8082"

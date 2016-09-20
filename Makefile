@@ -8,8 +8,8 @@ no_cache=false
 build:
 	sudo docker build --no-cache=$(no_cache) -t="obiba/mica:snapshot" .
 
-build13:
-	sudo docker build --no-cache=$(no_cache) -t="obiba/mica:1.3" 1.3 
+build-version:
+	sudo docker build --no-cache=$(no_cache) -t="obiba/mica:$(version)" $(version) 
 
-build14x:
-	sudo docker build --no-cache=$(no_cache) -t="obiba/mica:1.4-snapshot" 1.4-snapshot 
+build-branch:
+	sudo docker build --no-cache=$(no_cache) -t="obiba/mica:branch-snapshot" branch-snapshot 
