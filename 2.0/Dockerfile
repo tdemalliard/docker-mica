@@ -30,7 +30,7 @@ ENV MICA_ANONYMOUS_PASSWORD=password
 ENV MICA_HOME=/srv
 ENV JAVA_OPTS=-Xmx2G
 
-ENV MICA_VERSION 2.0
+ENV MICA_VERSION 2.0.4
 
 # Install Mica Python Client
 RUN \
@@ -39,17 +39,17 @@ RUN \
 
 RUN \
   wget -q -O - https://pkg.obiba.org/obiba.org.key | apt-key add - && \
-  echo 'deb https://pkg.obiba.org unstable/' | tee /etc/apt/sources.list.d/obiba.list && \
+  echo 'deb https://pkg.obiba.org stable/' | tee /etc/apt/sources.list.d/obiba.list && \
   apt-get update && \
-  DEBIAN_FRONTEND=noninteractive apt-get install -y mica-python-client
+  DEBIAN_FRONTEND=noninteractive apt-get install -y mica-python-client=$(apt-cache madison mica-python-client | cut -d ' ' -f 3 | grep ${MICA_VERSION})
 
 # Install Mica Server
 RUN set -x && \
   cd /usr/share/ && \
-  wget -q -O mica2.zip https://ci.obiba.org/view/Mica/job/Mica2-${MICA_VERSION}.x/ws/mica-dist/target/mica-dist-${MICA_VERSION}-SNAPSHOT-dist.zip && \
+  wget -q -O mica2.zip http://download.obiba.org/mica/stable/mica2-${MICA_VERSION}-dist.zip && \
   unzip -q mica2.zip && \
   rm mica2.zip && \
-  mv mica-dist-${MICA_VERSION}-SNAPSHOT mica2
+  mv mica-dist-${MICA_VERSION} mica2
 
 RUN chmod +x /usr/share/mica2/bin/mica2
 
