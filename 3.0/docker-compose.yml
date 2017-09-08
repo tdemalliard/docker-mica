@@ -1,6 +1,5 @@
 mica:
-#  image: obiba/mica:3.0
-  build: .
+  image: obiba/mica:3.0
   ports:
   - "8845:8445"
   - "8882:8082"
