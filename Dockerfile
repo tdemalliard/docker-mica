@@ -29,6 +29,7 @@ ENV MICA_ADMINISTRATOR_PASSWORD=password
 ENV MICA_ANONYMOUS_PASSWORD=password
 ENV MICA_HOME=/srv
 ENV JAVA_OPTS=-Xmx2G
+ENV SEARCH_ES_VERSION=2.4-SNAPSHOT
 
 # Install Mica
 RUN \
@@ -39,6 +40,12 @@ RUN \
   echo mica-server mica-server/admin_password select password | debconf-set-selections && \
   echo mica-server mica-server/admin_password_again select password | debconf-set-selections && \
   apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y mica2 mica-python-client
+
+# Install Search ES plugin
+RUN \
+  curl -L -o mica-search-es-${SEARCH_ES_VERSION}-dist.zip https://plugins.obiba.org/unstable/mica-search-es-${SEARCH_ES_VERSION}-dist.zip && \
+  unzip mica-search-es-${SEARCH_ES_VERSION}-dist.zip -d $MICA_HOME/plugins/ && \
+  rm -f mica-search-es-${SEARCH_ES_VERSION}-dist.zip
 
 RUN chmod +x /usr/share/mica2/bin/mica2
 
