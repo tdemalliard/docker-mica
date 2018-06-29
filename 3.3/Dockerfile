@@ -56,15 +56,15 @@ RUN \
   DEBIAN_FRONTEND=noninteractive apt-get install -y apt-transport-https unzip
 
 RUN \
-  wget -q -O - https://pkg.obiba.org/obiba.org.key | apt-key add - && \
-  echo 'deb https://pkg.obiba.org stable/' | tee /etc/apt/sources.list.d/obiba.list && \
+  apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 379CE192D401AB61 && \
+  echo 'deb https://dl.bintray.com/obiba/deb all main' | sudo tee /etc/apt/sources.list.d/obiba.list && \
   apt-get update && \
-  DEBIAN_FRONTEND=noninteractive apt-get install -y mica-python-client=$(apt-cache madison mica-python-client | cut -d ' ' -f 3 | grep ${MICA_VERSION})
+  DEBIAN_FRONTEND=noninteractive apt-get install -y mica-python-client
 
 # Install Mica Server
 RUN set -x && \
   cd /usr/share/ && \
-  wget -q -O mica2.zip http://download.obiba.org/mica/stable/mica2-${MICA_VERSION}-dist.zip && \
+  wget -q -O mica2.zip https://github.com/obiba/mica2/releases/download/${MICA_VERSION}/mica2-${MICA_VERSION}-dist.zip && \
   unzip -q mica2.zip && \
   rm mica2.zip && \
   mv mica-dist-${MICA_VERSION} mica2

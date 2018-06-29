@@ -53,17 +53,11 @@ ENV SEARCH_ES_VERSION=1.2-SNAPSHOT
 RUN \
   apt-get update && \
   DEBIAN_FRONTEND=noninteractive apt-get install -y apt-transport-https && \
-  wget -q -O - https://pkg.obiba.org/obiba.org.key | apt-key add - && \
-  echo 'deb https://pkg.obiba.org unstable/' | tee /etc/apt/sources.list.d/obiba.list && \
+  apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 379CE192D401AB61 && \
+  echo 'deb https://dl.bintray.com/obiba/deb all main' | sudo tee /etc/apt/sources.list.d/obiba.list && \
   echo mica-server mica-server/admin_password select password | debconf-set-selections && \
   echo mica-server mica-server/admin_password_again select password | debconf-set-selections && \
   apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y mica2 mica-python-client
-
-# Install Search ES plugin
-RUN \
-  curl -L -o mica-search-es-${SEARCH_ES_VERSION}-dist.zip https://plugins.obiba.org/unstable/mica-search-es-${SEARCH_ES_VERSION}-dist.zip && \
-  unzip mica-search-es-${SEARCH_ES_VERSION}-dist.zip -d $MICA_HOME/plugins/ && \
-  rm -f mica-search-es-${SEARCH_ES_VERSION}-dist.zip
 
 RUN chmod +x /usr/share/mica2/bin/mica2
 
