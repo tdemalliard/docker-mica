@@ -47,14 +47,13 @@ ENV MICA_ADMINISTRATOR_PASSWORD=password
 ENV MICA_ANONYMOUS_PASSWORD=password
 ENV MICA_HOME=/srv
 ENV JAVA_OPTS=-Xmx2G
-ENV SEARCH_ES_VERSION=1.2-SNAPSHOT
 
 # Install Mica
 RUN \
   apt-get update && \
   DEBIAN_FRONTEND=noninteractive apt-get install -y apt-transport-https && \
   apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 379CE192D401AB61 && \
-  echo 'deb https://dl.bintray.com/obiba/deb all main' | sudo tee /etc/apt/sources.list.d/obiba.list && \
+  echo 'deb https://dl.bintray.com/obiba/deb all main' | tee /etc/apt/sources.list.d/obiba.list && \
   echo mica-server mica-server/admin_password select password | debconf-set-selections && \
   echo mica-server mica-server/admin_password_again select password | debconf-set-selections && \
   apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y mica2 mica-python-client
