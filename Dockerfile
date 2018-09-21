@@ -4,72 +4,90 @@
 # https://github.com/obiba/docker-mica
 #
 
-# Pull base image
-FROM openjdk:8
-
-MAINTAINER OBiBa <dev@obiba.org>
+FROM debian:stretch-slim AS gosu
 
 # grab gosu for easy step-down from root
 # see https://github.com/tianon/gosu/blob/master/INSTALL.md
 ENV GOSU_VERSION 1.10
-ENV GOSU_KEY B42F6819007F00F88E364FD4036A9C25BF357DD4
 RUN set -ex; \
-  \
-  fetchDeps=' \
-    ca-certificates \
-    wget \
-  '; \
-  apt-get update; \
-  apt-get install -y --no-install-recommends $fetchDeps; \
-  rm -rf /var/lib/apt/lists/*; \
-  \
-  dpkgArch="$(dpkg --print-architecture | awk -F- '{ print $NF }')"; \
-  wget -O /usr/local/bin/gosu "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$dpkgArch"; \
-  wget -O /usr/local/bin/gosu.asc "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$dpkgArch.asc"; \
-  \
+	\
+	fetchDeps=' \
+		ca-certificates \
+    gnupg2 \
+    dirmngr \
+		wget \
+	'; \
+	apt-get update; \
+	apt-get install -y --no-install-recommends $fetchDeps; \
+	rm -rf /var/lib/apt/lists/*; \
+	\
+	dpkgArch="$(dpkg --print-architecture | awk -F- '{ print $NF }')"; \
+	wget -O /usr/local/bin/gosu "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$dpkgArch"; \
+	wget -O /usr/local/bin/gosu.asc "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$dpkgArch.asc"; \
+	\
 # verify the signature
-  export GNUPGHOME="$(mktemp -d)"; \
-  gpg --keyserver pgp.mit.edu --recv-keys "$GOSU_KEY" || \
-  gpg --keyserver keyserver.pgp.com --recv-keys "$GOSU_KEY" || \
-  gpg --keyserver ha.pool.sks-keyservers.net --recv-keys "$GOSU_KEY"; \
-  gpg --batch --verify /usr/local/bin/gosu.asc /usr/local/bin/gosu; \
-  rm -rf "$GNUPGHOME" /usr/local/bin/gosu.asc; \
-  \
-  chmod +x /usr/local/bin/gosu; \
+	export GNUPGHOME="$(mktemp -d)"; \
+	gpg --keyserver ha.pool.sks-keyservers.net --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4; \
+	gpg --batch --verify /usr/local/bin/gosu.asc /usr/local/bin/gosu; \
+	rm -r "$GNUPGHOME" /usr/local/bin/gosu.asc; \
+	\
+	chmod +x /usr/local/bin/gosu; \
 # verify that the binary works
-  gosu nobody true;
+	gosu nobody true; \
+	\
+	apt-get purge -y --auto-remove $fetchDeps
 
-ENV LANG C.UTF-8
-ENV LANGUAGE C.UTF-8
-ENV LC_ALL C.UTF-8
+FROM maven:3.5.4-slim AS building
 
-ENV MICA_ADMINISTRATOR_PASSWORD=password
-ENV MICA_ANONYMOUS_PASSWORD=password
-ENV MICA_HOME=/srv
-ENV JAVA_OPTS=-Xmx2G
+ENV NVM_DIR /root/.nvm
+ENV NODE_VERSION 4.5.0
 
-# Install Mica
-RUN \
-  apt-get update && \
-  DEBIAN_FRONTEND=noninteractive apt-get install -y apt-transport-https && \
-  echo 'deb https://obiba.jfrog.io/obiba/debian-local all main' | tee /etc/apt/sources.list.d/obiba.list && \
-  echo mica-server mica-server/admin_password select password | debconf-set-selections && \
-  echo mica-server mica-server/admin_password_again select password | debconf-set-selections && \
-  apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --allow-unauthenticated mica2 mica-python-client
+RUN mkdir -p $NVM_DIR
 
-RUN chmod +x /usr/share/mica2/bin/mica2
+SHELL ["/bin/bash", "-c"]
 
-COPY bin /opt/mica/bin
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends devscripts debhelper build-essential fakeroot git && \
+    curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.11/install.sh | bash && \
+    source $NVM_DIR/nvm.sh && \
+    nvm install $NODE_VERSION && \
+    npm install -g bower grunt && \
+    echo '{ "allow_root": true }' > $HOME/.bowerrc
 
-RUN chmod +x -R /opt/mica/bin
-RUN chown -R mica /opt/mica
+WORKDIR /projects
+RUN git clone https://github.com/obiba/mica2.git
 
-VOLUME /srv
+WORKDIR /projects/mica2
 
-# http and https
+RUN source $NVM_DIR/nvm.sh && \
+    mvn clean install && \
+    mvn -Prelease org.apache.maven.plugins:maven-antrun-plugin:run@make-deb
+
+FROM openjdk:8-jdk-stretch AS server
+
+ENV MICA_VERSION 3.4-SNAPSHOT
+
+ENV MICA_ADMINISTRATOR_PASSWORD password
+ENV MICA_ANONYMOUS_PASSWORD password
+ENV MICA_HOME /srv
+ENV JAVA_OPTS -Xmx2G
+
+WORKDIR /tmp
+COPY --from=building /projects/mica2/mica-dist/target/mica2_$MICA_VERSION*.deb .
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends daemon psmisc && \
+    DEBIAN_FRONTEND=noninteractive dpkg -i mica2_$MICA_VERSION*.deb
+
+COPY --from=gosu /usr/local/bin/gosu /usr/local/bin/
+
+COPY /bin /opt/mica/bin
+RUN chmod +x -R /opt/mica/bin; \
+    chown -R mica /opt/mica; \
+    chmod +x /usr/share/mica2/bin/mica2
+
+VOLUME $MICA_HOME
 EXPOSE 8082 8445
 
-# Define default command.
 COPY ./docker-entrypoint.sh /
-ENTRYPOINT ["/docker-entrypoint.sh"]
+ENTRYPOINT ["/bin/bash" ,"/docker-entrypoint.sh"]
 CMD ["app"]
