@@ -25,14 +25,14 @@ RUN set -ex; \
 	wget -O /usr/local/bin/gosu "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$dpkgArch"; \
 	wget -O /usr/local/bin/gosu.asc "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$dpkgArch.asc"; \
 	\
-# verify the signature
+  # verify the signature
 	export GNUPGHOME="$(mktemp -d)"; \
 	gpg --keyserver ha.pool.sks-keyservers.net --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4; \
 	gpg --batch --verify /usr/local/bin/gosu.asc /usr/local/bin/gosu; \
 	rm -r "$GNUPGHOME" /usr/local/bin/gosu.asc; \
 	\
 	chmod +x /usr/local/bin/gosu; \
-# verify that the binary works
+  # verify that the binary works
 	gosu nobody true; \
 	\
 	apt-get purge -y --auto-remove $fetchDeps
@@ -41,6 +41,7 @@ FROM maven:3.5.4-slim AS building
 
 ENV NVM_DIR /root/.nvm
 ENV NODE_VERSION 4.5.0
+ENV MICA_BRANCH master
 
 RUN mkdir -p $NVM_DIR
 
@@ -59,13 +60,12 @@ RUN git clone https://github.com/obiba/mica2.git
 
 WORKDIR /projects/mica2
 
-RUN source $NVM_DIR/nvm.sh && \
+RUN source $NVM_DIR/nvm.sh; \
+    git checkout $MICA_BRANCH; \
     mvn clean install && \
     mvn -Prelease org.apache.maven.plugins:maven-antrun-plugin:run@make-deb
 
 FROM openjdk:8-jdk-stretch AS server
-
-ENV MICA_VERSION 3.4-SNAPSHOT
 
 ENV MICA_ADMINISTRATOR_PASSWORD password
 ENV MICA_ANONYMOUS_PASSWORD password
@@ -73,10 +73,10 @@ ENV MICA_HOME /srv
 ENV JAVA_OPTS -Xmx2G
 
 WORKDIR /tmp
-COPY --from=building /projects/mica2/mica-dist/target/mica2_$MICA_VERSION*.deb .
+COPY --from=building /projects/mica2/mica-dist/target/mica2_*.deb .
 RUN apt-get update && \
     apt-get install -y --no-install-recommends daemon psmisc && \
-    DEBIAN_FRONTEND=noninteractive dpkg -i mica2_$MICA_VERSION*.deb
+    DEBIAN_FRONTEND=noninteractive dpkg -i mica2_*.deb
 
 COPY --from=gosu /usr/local/bin/gosu /usr/local/bin/
 
