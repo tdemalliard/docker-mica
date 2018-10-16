@@ -64,7 +64,7 @@ RUN \
 # Install Mica Server
 RUN set -x && \
   cd /usr/share/ && \
-  wget -q -O mica2.zip https://github.com/obiba/mica2/releases/download/${MICA_VERSION}/mica2-${MICA_VERSION}-dist.zip && \
+  wget -q -O mica2.zip https://github.com/obiba/mica2/releases/download/${MICA_VERSION}/mica-dist-${MICA_VERSION}-dist.zip && \
   unzip -q mica2.zip && \
   rm mica2.zip && \
   mv mica-dist-${MICA_VERSION} mica2
