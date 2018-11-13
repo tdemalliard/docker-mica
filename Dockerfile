@@ -31,6 +31,8 @@ WORKDIR /projects/mica2
 
 RUN source $NVM_DIR/nvm.sh; \
     git checkout $MICA_BRANCH; \
+    COMMIT=$(git log -1 --pretty="%H" | head -c7); \
+    find -name 'pom.xml' -exec sed -i "s/-SNAPSHOT/-SNAPSHOT-${COMMIT}/" {} \;; \
     mvn clean install && \
     mvn -Prelease org.apache.maven.plugins:maven-antrun-plugin:run@make-deb
 
